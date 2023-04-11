@@ -112,11 +112,11 @@ print(alphas)
 
 simulated_data_GRM <- function(thetas, alphas, item_betas){
     data = matrix(data = NA, nrow = 1000, ncol = 15)
+    set.seed(10)
     for (item in 1:15) {
         prob_cate <- Prob_GRM(theta = thetas, alpha = alphas[item], beta = as.vector(item_betas[item, ]), cat = NA)
         for (person in 1:1000) {
             prob = as.vector(prob_cate[person, ])
-            set.seed(1)
             resp_item = sample(c(0, 1, 2, 3), size = 1, replace = FALSE, prob = prob)   
             data[person, item] = resp_item
         }   
@@ -126,6 +126,8 @@ simulated_data_GRM <- function(thetas, alphas, item_betas){
 }
 
 generated_data <- simulated_data_GRM(thetas, alphas, item_betas)
+
+write.csv(generated_data, file = "datos.csv")
 
 
 #########################################################################################################
