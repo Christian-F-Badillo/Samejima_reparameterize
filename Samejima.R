@@ -127,10 +127,10 @@ simulated_data_GRM <- function(thetas, alphas, item_betas){
 
 generated_data <- simulated_data_GRM(thetas, alphas, item_betas)
 
-write.csv(item_betas, file = "betas.csv")
-write.csv(alphas, file = "alphas.csv")
-write.csv(thetas, file = "thetas.csv")
-write.csv(generated_data, file = "sim_data.csv")
+#write.csv(item_betas, file = "betas.csv")
+#write.csv(alphas, file = "alphas.csv")
+#write.csv(thetas, file = "thetas.csv")
+#write.csv(generated_data, file = "sim_data.csv")
 
 
 #########################################################################################################
@@ -152,7 +152,7 @@ data_model = list(
 
 write("
 data{
-  int<lower=1, upper=5> J; //número de categorías m-1
+  int<lower=1, upper=4> J; //número de categorías m-1
   int<lower = 0> n_per; //número de personas
   int<lower = 0> n_items; //número de ítems
   int<lower = 1, upper = J> DATA[n_per, n_items];
@@ -171,15 +171,19 @@ model{
       }}
     for (i in 1:n_per){
       for (j in 1:n_items){
-        DATA[i,j] ~ ordered_logistic(theta[i]*alpha[j],beta[j]);
+        DATA[i,j] ~ ordered_logistic(theta[i]*alpha[j], alpha[j]*beta[j]);
       }}
-}" 
-,"model_samejima.stan")
+}",
+"model_samejima.stan")
 
 library(rstan)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+rstan_options(threads_per_chain = 3)
+
 
 fit <- stan(file = "model_samejima.stan", data = data_model, model_name = "Samejima_Model_Fit", 
-     iter = 8000, warmup = 1000, chains = 4, thin = 2, verbose = T, cores = 6)
+     iter = 10000, warmup = 1000, chains = 4, thin = 2, verbose = T, cores = 6)
 
 suma <- summary(fit) # Descripción de los datos 
 desc <- suma$summary # Visualizar estadísticos importantes.
